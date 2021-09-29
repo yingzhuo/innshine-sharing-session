@@ -91,6 +91,77 @@ docker官方使用[https://hub.docker.com/](https://hub.docker.com/)来保存已
 我的一个基本理念: "小就是美"。一个严肃的团队，应该有专人来维护公司用的基本镜像。
 基本镜像一般来说还需要再做调整才可以被程序开发团队使用。如需要JRE，Python解释器等。
 
+商决团队`Java-Base` 基本镜像:
+
+```Dockerfile
+FROM alpine:3.13.5
+
+COPY --from=yingzhuo/gosu     /bin/gosu     /usr/local/bin/gosu
+COPY --from=yingzhuo/docktool /bin/docktool /usr/local/bin/docktool
+
+USER root:root
+
+WORKDIR /opt
+
+RUN addgroup -g 1001 -S app && \
+    adduser  -u 1001 -S app -G app -s /bin/sh --no-create-home --disabled-password && \
+    chmod +x /usr/local/bin/gosu && \
+    chmod +x /usr/local/bin/docktool && \
+    mkdir -p /var/data && \
+    mkdir -p /var/tmp && \
+    chmod 777 /opt && \
+    chmod 777 /var/log && \
+    chmod 777 /var/data && \
+    chmod 777 /var/tmp && \
+    chmod 777 /var/run && \
+    chmod 777 /run && \
+    rm -rf /var/cache/apk/*
+```
+
+```Dockerfile
+FROM registry.cn-shanghai.aliyuncs.com/yingzhuo/alpine
+
+LABEL maintainer="应卓 <yingzhor@gmail.com>"
+
+ENV JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk
+ENV PATH=$PATH:$JAVA_HOME/bin
+
+RUN apk add --update bash ca-certificates openjdk8 font-adobe-100dpi ttf-dejavu fontconfig && \
+    rm -rf /usr/bin/java && \
+    rm -rf /var/cache/apk/* && \
+    rm -rf "$JAVA_HOME/man/" && \
+    rm -rf "$JAVA_HOME/demo/" && \
+    rm -rf "$JAVA_HOME/release" && \
+    rm -rf "$JAVA_HOME/THIRD_PARTY_README" && \
+    rm -rf "$JAVA_HOME/ASSEMBLY_EXCEPTION" && \
+    rm -rf "$JAVA_HOME/LICENSE" && \
+    rm -rf "$JAVA_HOME/README" && \
+    rm -rf "$JAVA_HOME/jre/ASSEMBLY_EXCEPTION" && \
+    rm -rf "$JAVA_HOME/jre/LICENSE" && \
+    rm -rf "$JAVA_HOME/jre/THIRD_PARTY_README" && \
+    rm -rf "$JAVA_HOME/lib/missioncontrol" && \
+    rm -rf "$JAVA_HOME/lib/visualvm" && \
+    rm -rf "$JAVA_HOME/lib/*javafx*" && \
+    rm -rf "$JAVA_HOME/jre/lib/plugin.jar" && \
+    rm -rf "$JAVA_HOME/jre/lib/ext/jfxrt.jar" && \
+    rm -rf "$JAVA_HOME/jre/bin/javaws" && \
+    rm -rf "$JAVA_HOME/jre/lib/javaws.jar" && \
+    rm -rf "$JAVA_HOME/jre/lib/desktop" && \
+    rm -rf "$JAVA_HOME/jre/plugin" && \
+    rm -rf "$JAVA_HOME/jre/lib/deploy*" && \
+    rm -rf "$JAVA_HOME/jre/lib/*javafx*" && \
+    rm -rf "$JAVA_HOME/jre/lib/*jfx*" && \
+    rm -rf "$JAVA_HOME/jre/lib/amd64/libdecora_sse.so" && \
+    rm -rf "$JAVA_HOME/jre/lib/amd64/libprism_*.so" && \
+    rm -rf "$JAVA_HOME/jre/lib/amd64/libfxplugins.so" && \
+    rm -rf "$JAVA_HOME/jre/lib/amd64/libglass.so" && \
+    rm -rf "$JAVA_HOME/jre/lib/amd64/libgstreamer-lite.so" && \
+    rm -rf "$JAVA_HOME/jre/lib/amd64/libjavafx*.so" && \
+    rm -rf "$JAVA_HOME/jre/lib/amd64/libjfx*.so"
+
+WORKDIR /root
+```
+
 #### 6.4 构建目录
 
 构建目录又被称为构建上下文
@@ -182,3 +253,5 @@ docker image push 192.168.10.110/yingzhuo/hello:1.0.0
 ```bash
 docker system prune -a -f
 ```
+
+#### 7.3 zsh & oh-my-zsh
